@@ -1,16 +1,16 @@
 <?php 
-include "web/parts/config.php";
+include "src/parts/config.php";
 ?>
 <!doctype html> 
 <html> 
 <head>
 <?php
-include "web/parts/head.php";
+include "src/parts/head.php";
 ?>
 </head>
 <body>
 <?php 
-include "web/parts/body.php";
+include "src/parts/body.php";
 ?>
 </body>
 </html>
