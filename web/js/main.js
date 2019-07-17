@@ -1,4 +1,9 @@
-
+document.getElementsByClassName("ajout").addEventListener("click",addField);
+function addField() {
+     var field2 = "<input type='text' name='' value='skills7'/>";
+var field1 = "<label for ='skills7'> skills7 </label>"
+     document.getElementById('skills6').innerHtml += field1+field2;
+}
 function validate_input(id)
 {var frm=document.forms['form1'];
 var patt=/[A-Z]{1}[a-z]*/;
