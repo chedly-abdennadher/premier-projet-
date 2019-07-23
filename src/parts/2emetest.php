@@ -3,7 +3,7 @@ function invalide2 ($name)
 {return (!isset($_POST[$name])||($_POST[$name]===""));	
 }
 function invalide ($name)
-{return (!isset($_POST)||!array_key_exists ($name,$_POST)||($_POST[$name]==="")) ;	
+{return (!isset($_POST[$name])||!array_key_exists ($name,$_POST)||($_POST[$name]==="")) ;	
 }
 
 function validateInput($name)
@@ -30,21 +30,22 @@ return ((!invalide($name3))&&(preg_match($patt,$_POST[$name3])));
 }
 
 function validate_form()
-{$nom="nom";
-$prenom="prenom";
-$date_bac="date_bac";
-$email="email";
-$dateMax="2005-06-21";
+{$dateMax="2005-06-21";
 $dateMin="1990-03-22";
-$dateNaissance="datenaissance";
-$v1=validateInput($nom);
-$v2=validateInput($prenom);
-$v3=validateDate($date_bac,$dateMax,$dateMin);
-$v4=validateEmail($email);
-$v5=validateDate($dateNaissance,$dateMax,$dateMin);
+
+$v1=validateInput("nom");
+$v2=validateInput("prenom");
+$v3=validateDate("date_bac",$dateMax,$dateMin);
+$v4=validateEmail("email");
+$v5=validateDate("datenaissance",$dateMax,$dateMin);
 if (($v1)&&($v2)&&($v3)&&($v4)&&($v5))
-{printf ("valide");}
+{printf ("valide");
+return true;
 }
-validate_form();
+else 
+{echo "invalide";
+	return false;}
+}
+
 require "2emetestsuite.php";
 ?>
