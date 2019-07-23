@@ -14,13 +14,18 @@
 
 </head> 
 <body> 
+
 <?php 
+
 include "phpmysqlconnect.php";
 
 $currentPage = 1;
+
 //  get current page from url (get)
 if(isset($_GET) && isset($_GET["page"]) )
 {	$currentPage = $_GET["page"];
+$_GET["page"]=$currentPage;
+
 }
 
 $orderBy = "";
@@ -44,8 +49,8 @@ if(isset($_GET) && isset($_GET["order_mode"]) ){
 function getUrlWithParams($orderName){
 $sens =  "ASC";
 global $orderBy;
-global $currentPage;
 global $orderMode;
+global $currentPage;
 global $iconMap;
 global $offset;
 $iconMap[$orderName]="";
@@ -57,9 +62,8 @@ if($orderBy == $orderName){
 	}
 }
 
-$offset=16*($currentPage-1);
 
-return 	"?page ={$currentPage}&offset =$offset &order_by={$orderName}&order_mode={$sens}";
+return 	"?page ={$currentPage}&order_by={$orderName}&order_mode={$sens}";
 }
 ?>
 
@@ -71,43 +75,33 @@ echo $sql;
 $q=$conn->query($sql);
 $q->setFetchMode(PDO::FETCH_ASSOC);
 $compte=$q->fetch();
-$nbligne = $compte["count(*)"];	
-$nbligneexacte=ceil ($nbligne);
-echo $nbligneexacte;
+$nbligne = ceil($compte["count(*)"]);	
+
+$limit=15;
+$nbpage = ceil($nbligne/$limit);
+
+echo $nbpage;
+
 ?>
-  <a class="<?php echo ($currentPage == 1 ? 'active' : ''); ?>" 
-	<a href="?page=1<?php echo $extraParams; ?>"> page 1</a>
-  <a class="<?php echo ($currentPage == 2 ? 'active' : ''); ?>" href="?page=2<?php echo $extraParams; ?>" > page 2</a>
-  <a class="<?php echo ($currentPage == 3 ? 'active' : ''); ?>" href ="?page=3<?php echo $extraParams; ?>"> page 3</a> 
- 
-  <a href="?page=3<?php echo $extraParams; ?>">&raquo </a>
+<?php 
+
+for ($i=1;$i<=$nbpage;$i++)
+{?>
+ <a class="<?php echo ($currentPage == $i ? 'active' : ''); ?>" 
+	<a href="?page=<?php echo $i;?> <?php echo $extraParams; ?>"> page <?php echo $i;?></a>
+<?php }?>
 
 </div>
 <div class="container">
-<?PHP 
-function inverseButton ($nomChamp)
-{$sens="ASC";
-global $orderMode;
-global $orderBy;
-if ($orderBy==$nomChamp)
-{if ($sens ==$orderMode)
-{$sens =$orderMode;
 
-if ($sens =="ASC")
-{echo "<button name='->' > <- </button>";}
-else 
-{echo "<button name='<-' > <- </button>";}
-}
-}}
-
-?>
 <table class="table table-striped table-sm"> 
 <thead> 
 
 <tr>
-<th> <a href="<?php echo getUrlWithParams('cin');?>"> carte_identifiant <?php echo $iconMap['cin']; ?> </a> 
+<th> <a href="<?php echo getUrlWithParams('id_carte');?>"> carte_identifiant <?php echo $iconMap['id_carte']; ?> </a> 
 
 </th> 
+
 <th> <a href="<?php echo getUrlWithParams('nom');?>" > nom <?php echo $iconMap['nom']; ?></a></th> 
 <th> <a href="<?php echo getUrlWithParams('prenom');?>"> Prenom <?php echo $iconMap['prenom']; ?></a></th>
 <th> <a href="<?php echo getUrlWithParams('adresse');?>"> Adresse <?php echo $iconMap['adresse']; ?></a></th>
@@ -118,8 +112,19 @@ else
 </thead >
 <tbody>
 <?php 
-var_dump ($_GET);
-$sql="select * from identite limit 15 offset ". 15*(($_GET['page'])-1)."";
+global $orderBy;
+global $orderMode;
+
+if ((isset ($_GET["page"]))&&($orderBy!="")&&($orderMode!=""))
+{
+$limitact=$limit*(intval($_GET['page'])-1);
+$sql="select * from identite order by ". $orderBy. " " .
+$orderMode.
+" limit " .$limit ." offset ". $limitact."";} 
+else 
+{$sql="select * from identite order by id_carte ASC limit " .$limit ." offset 0";
+	
+}
 echo $sql;
 $q=$conn->query($sql);
 $q->setFetchMode(PDO::FETCH_ASSOC);
@@ -140,7 +145,8 @@ while ($parcours=$q->fetch())
 <a href="http://localhost/php/src/parts/supprimerformulaire.php?id=30"> <button type="button" class="btn btn-danger" class="supprimer" class="supprimer"> supprimer </button></a> </td>
 
 </tr>
-<?PHP }?> 
+<?PHP }
+?> 
 
 </tbody>
 
