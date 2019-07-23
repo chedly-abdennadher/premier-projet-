@@ -16,7 +16,7 @@
 <div class="row"> 
 <div class="col-8"> 
 <form onsubmit="return validate_form()" novalidate id="form1"
- method="post" action="http://localhost/php/src/parts/editformulaire.php">
+ method="post" action="http://localhost/php/src/parts/editerformulaire.php">
  <?php
 include "./2emetest.php";
 ?>
@@ -50,7 +50,9 @@ include "./2emetest.php";
 </select>
 <br>
 <label for ="datebac"> date bac </label> 
-<input type ="date" id="datebac" name="date_bac">
+<input type ="date" id="datebac" name="date_bac"
+value="<?php if (isset($_POST)&&(isset($_POST['date_bac']))){echo $_POST['date_bac'];}?>">
+
 <hr>
  
 <h2><div class="e"> reference</div></h2>
@@ -59,22 +61,22 @@ include "./2emetest.php";
 <img src="../../web/image/index.jpeg">
 <div class="row"> 
 <div class="col-12"> 
+<label for ="carte_id" > carte identite </label>
+<input type="text" name= "carte_id" pattern ="[0-9]{3}" value="<?php if (isset($_POST)&&(isset($_POST['carte_id']))){echo $_POST['carte_id'];}?>"><br>
+
 <label for="nom"> nom</label>
-<?php
-if (!validateInput("nom"))
-{
-echo "<span class='dirty'>champ invalide </span>";}
-	?>
+
 <input type="text" name="nom" id="nom" class="text <?php if (!validateInput('nom')) echo 'error_input'; ?>" pattern ="[A-Z]{1}[a-z]*" 
 value="<?php if (isset($_POST)&&(isset($_POST['nom']))){echo $_POST['nom'];}?>">
 
 
-	
+	<div>
 <label for ="prenom"> prenom</label> 
 <input type ="text"id="prenom" pattern ="[A-Z]{1}[a-z]*" 
 class="text <?php if ((isset($_POST['prenom']))&&(isset($_POST))&&(!validateInput('prenom'))){echo'error_input';}?>" 
 name="prenom"
-value="<?php if (isset($_POST)&&(isset($_POST['prenom']))){echo $_POST['prenom'];}?>">
+value="<?php if (isset($_POST)&&(isset($_POST['prenom']))){echo $_POST['prenom'];}?>"><br>
+</div>
 <h2> development </h2> <br>
 <label for ="adress">adress  </label>
 <input type="text" id ="adress" name="adresse"><br>
@@ -174,7 +176,7 @@ echo $_POST["langue"][$i];?> '>
 <label for=" mot_cles"> mot clés</label> 
 <input type="text" id= "mot_cle" name="mot_cle">
 </div>
-<input type="submit" value ="envoyer" id="envoyer" name="envoyer">
+<input type="submit" value ="editer" id="envoyer" name="envoyer">
 <input type="reset" value ="annuler" id="annuler">
 
 </div>
@@ -191,9 +193,12 @@ echo $_POST["langue"][$i];?> '>
 </div>
 
 <?php 
+echo "je suis la ";
 
 if ((validate_form())&&(isset ($_POST["envoyer"])))
 {
+echo "hello";
+$contenuformulaire["carte_id"]=$_POST["carte_id"];
 $contenuformulaire["nom"]=$_POST["nom"];
 $contenuformulaire["prenom"]=$_POST ["prenom"];
 $contenuformulaire["adresse"]=$_POST["adresse"];
@@ -233,9 +238,25 @@ $contenuformulaire ["projet"]["description"]=$_POST["description"];
 $contenuformulaire ["projet"]["mot_cle"]=$_POST["mot_cle"];
 
 require 'phpmysqlconnect.php';
-$sql ='INSERT INTO identite(nom,prenom,adresse, date_naissance, email) 
+
+$sql ='select * from identite where id_carte='. $contenuformulaire["carte_id"].'';
+echo $sql; 
+$id_carte_bd=$conn->query($sql);
+$id_carte_bd->setFetchMode(PDO::FETCH_ASSOC);
+
+$trouve =0;
+
+
+while (($parcours= $id_carte_bd->fetch())&&($trouve ==0))
+{
+if (isset ($parcours["id_carte"])) 
+{$trouve=1;}
+}
+if ($trouve==0)
+{$sql ='INSERT INTO identite(id_carte,nom,prenom,adresse, date_naissance, email) 
 VALUES
-("'.$contenuformulaire["nom"].'", 
+('.$contenuformulaire["carte_id"].',
+"'.$contenuformulaire["nom"].'", 
 "'.$contenuformulaire["prenom"].'",
 "'.$contenuformulaire["adresse"].'",
 
@@ -245,67 +266,102 @@ VALUES
 
 
 $q=$conn->exec($sql);
-echo "donnée inserée";
+echo "donnée inserée";}
+else 
+{$sql ='update identite set nom = "'.$contenuformulaire["nom"].'", 
+prenom="'.$contenuformulaire["prenom"].'",
+adresse="'.$contenuformulaire["adresse"].'"
+where id_carte='.$contenuformulaire["carte_id"].';';
+echo $sql; 
 
+$q=$conn->exec($sql);
+echo "donnée mise à jour ";
+	
+}
 
 foreach ($contenuformulaire["skills"] as $skills_element)
 {
-	$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence) 
-VALUES
-("'.$skills_element.'", "skills",NULL);';
-$q=$conn->exec($sql);}
+	$sql ='update competence set nom_competence="'.$skills_element.'", 
+type_competence="skills" where (id_carte ='.$contenuformulaire["carte_id"].')
+and (type_competence="skills");';
+echo $sql; 
+$q=$conn->exec($sql);
+}
 foreach ($contenuformulaire["logiciel"] as $logiciel_element)
-{$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence) 
-VALUES
-("'.$logiciel_element.'", "logiciel",NULL);';
-$q=$conn->exec($sql);}
-foreach ($contenuformulaire["langue"] as $langue_element)
-{$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence) 
-VALUES
-("'.$langue_element.'", "langue",NULL);';
+{$sql ='update competence set nom_competence="'.$logiciel_element.'"  
+where id_carte='.$contenuformulaire["carte_id"].' and type_competence="logiciel";';
+echo $sql;
 $q=$conn->exec($sql);
 
-echo "donnée inserée";}
+}
+foreach ($contenuformulaire["langue"] as $langue_element)
+{$sql ='update competence set nom_competence = "'.$langue_element.'" 
+where id_carte='.$contenuformulaire["carte_id"].' and type_competence="langue";';
+$q=$conn->exec($sql);
+echo $sql; 
+echo "donnée inserée";
+}
 
 foreach ($contenuformulaire["SGBD"] as $SGBD_element)
-{$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence) 
-VALUES
-("'.$SGBD_element.'", "SGBD",NULL);';
-$q=$conn->exec($sql);}
+{$sql ='update competence set nom_competence="'.$SGBD_element.'" 
+where id_carte='.$contenuformulaire["carte_id"].' and (type_competence="SGBD")
+;';
+echo $sql; 
+$q=$conn->exec($sql);
+}
 foreach ($contenuformulaire["langue"] as $langue_element)
-{$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence) 
-VALUES
-("'.$langue_element.'", "langue",NULL);';
+{$sql ='update competence set nom_competence="'.$langue_element.'"
+ where (id_carte='.$contenuformulaire["carte_id"].') and type_competence="langue"
+;';
 $q=$conn->exec($sql);
-
-echo "donnée inserée";}
-$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence,keywords,description) 
-VALUES
-("'.$contenuformulaire["projet"]["nom"].'", "projet",NULL,
-"'.$contenuformulaire["projet"]["mot_cle"].'","'.$contenuformulaire["projet"]["description"].'");';
- 
-$q=$conn->exec($sql);
+echo $sql; 
 
 echo "donnée inserée";
+
+}
+$data = [
+    'nom_competence' => $contenuformulaire["projet"]["nom"],
+    'keywords' => $contenuformulaire["projet"]["mot_cle"],
+    'description' => $contenuformulaire["projet"]["description"],
+
+    'id_carte' => $contenuformulaire["carte_id"],
+
+];
+var_dump ($data);
+$sql = "UPDATE competence SET 
+nom_competence=:nom_competence, 
+keywords=:keywords, 
+description=:description
+WHERE (id_carte=:id_carte) and 
+(type_competence='projet')";	
+$stmt= $conn->prepare($sql);
+$stmt->execute($data);
+echo $sql; 
+
+
+echo "donnée mise à jour";
 
 foreach ($contenuformulaire["accomplishement"] as $accomplishement_element)
 foreach ($accomplishement_element as $element)
 {
 {
-$sql ='INSERT INTO experience(nom_experience,type_experience,lieu,date_experience) 
-VALUES
-("'.$accomplishement_element["nom"].'",
-"'.$accomplishement_element["type"].'",
-"'.$accomplishement_element["lieu"].'",
-	"'.$accomplishement_element["date"].'");';
+$sql ='update experience set nom_experience ="'.$accomplishement_element["nom"].'",
+type_experience="'.$accomplishement_element["type"].'",
+lieu= "'.$accomplishement_element["lieu"].'",
+date_experience=	"'.$accomplishement_element["date"].'"
+ 
+	where id_carte='.$contenuformulaire["carte_id"].';';
+echo $sql; 
 		
 $q=$conn->exec($sql);
 
 echo "donnée inserée";
 
-break;}
+break;
+}
 
-}}
+}
+}
 ?>
 
 

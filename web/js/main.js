@@ -1,3 +1,8 @@
+document.getElementsByClassName("supprimer").addEventListener("click",fdanger);
+function fdanger()
+{alert "voulez-vous supprimer ce profil";
+	
+}
 document.getElementsByClassName("ajout").addEventListener("click",addField);
 function addField() {
      var field2 = "<input type='text' name='' value='skills7'/>";

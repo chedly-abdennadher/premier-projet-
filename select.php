@@ -1,8 +1,11 @@
 <?php 
-require 'phpmysqlconnect.php';
+require 'src/parts/phpmysqlconnect.php';
 $sql ="select * from customers";
 $q=$conn->query($sql);
 $q->setFetchMode(PDO::FETCH_ASSOC);
+while ($r=$q->fetch())
+{var_dump($r);}
+
 ?>
 
 	

@@ -1,5 +1,0 @@
-#include conf/extra/httpd-languages.conf
-#include conf/extra/httpd-info.conf
-#include conf/extra/httpd-userdir.conf
-#include conf/extra/httpd-vhosts.conf
-#include conf/extra/httpd-manual.conf
