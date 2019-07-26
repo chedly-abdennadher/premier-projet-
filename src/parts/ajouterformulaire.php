@@ -16,7 +16,7 @@
 <div class="row"> 
 <div class="col-8"> 
 <form onsubmit="return validate_form()" novalidate id="form1"
- method="post" action="http://localhost/php/src/parts/editformulaire.php">
+ method="post" action="http://localhost/php/src/parts/ajouterformulaire.php">
  <?php
 include "./2emetest.php";
 ?>
@@ -311,14 +311,7 @@ VALUES
 ('.$contenuformulaire["carte_id"].',"'.$SGBD_element.'", "SGBD",NULL);';
 $q=$conn->exec($sql);
 }
-foreach ($contenuformulaire["langue"] as $langue_element)
-{$sql ='INSERT INTO competence(nom_competence,type_competence,date_competence,id_carte) 
-VALUES
-("'.$langue_element.'", "langue",NULL,'.$contenuformulaire["carte_id"].');';
-$q=$conn->exec($sql);
 
-echo "donnée inserée";
-}
 $sql ='INSERT INTO competence(id_carte,nom_competence,type_competence,date_competence,keywords,description) 
 VALUES
 ('.$contenuformulaire["carte_id"].',

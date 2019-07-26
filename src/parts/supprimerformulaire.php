@@ -11,6 +11,7 @@
 
 </head> 
 <body> 
+
 <?php 
 if (isset ($_GET["id"]))
 {
@@ -36,7 +37,6 @@ if (isset ($parcours["id_carte"]))
 if ($trouve==0)
 {echo "profile introuvable";}
 else 
-{if ($contenuformulaire["confirmer"]=="ok")
 {echo "supp";
 $sql ='delete from identite where id_carte='.$contenuformulaire["carte_id"].';';
 echo $sql; 
@@ -46,7 +46,7 @@ echo "donnée supprime";
 	
 }
 }
-}}
+}
 ?>
 
 
