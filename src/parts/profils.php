@@ -63,7 +63,7 @@ if($orderBy == $orderName){
 }
 
 
-return 	"?page ={$currentPage}&order_by={$orderName}&order_mode={$sens}";
+return 	"?page={$currentPage}&order_by={$orderName}&order_mode={$sens}";
 }
 ?>
 
@@ -115,16 +115,13 @@ for ($i=1;$i<=$nbpage;$i++)
 global $orderBy;
 global $orderMode;
 
-if ((isset ($_GET["page"]))&&($orderBy!="")&&($orderMode!=""))
-{
+
+
 $limitact=$limit*(intval($_GET['page'])-1);
 $sql="select * from identite order by ". $orderBy. " " .
 $orderMode.
-" limit " .$limit ." offset ". $limitact."";} 
-else 
-{$sql="select * from identite order by id_carte ASC limit " .$limit ." offset 0";
-	
-}
+" limit " .$limit ." offset ". $limitact.""; 
+
 echo $sql;
 $q=$conn->query($sql);
 $q->setFetchMode(PDO::FETCH_ASSOC);
@@ -138,11 +135,15 @@ while ($parcours=$q->fetch())
 <td> <?php echo $parcours["adresse"];?> </td>
 <td> <?php echo $parcours["email"];?> </td> 
 <td> <?php echo $parcours["date_naissance"];?></td> 
-<?PHP?>
-<td>
-<a href="http://localhost/php/src/parts/editerformulaire.php"> <button type="button" class="btn btn-danger"> editer </button></a>
 
-<a href="http://localhost/php/src/parts/supprimerformulaire.php?id=30"> <button type="button" class="btn btn-danger" class="supprimer" class="supprimer"> supprimer </button></a> </td>
+<td>
+<a href="http://localhost/php/src/parts/editerformulaire.php?id=<?php echo $parcours["id_carte"];?>"> <button type="button" class="btn btn-danger"> editer </button></a>
+
+<a href="http://localhost/php/src/parts/supprimerformulaire.php?id=<?php echo $parcours["id_carte"]; ?>"
+onclick ="return (confirm('voulez vous supprimer'));">
+<button type="button" class="btn btn-danger" class="supprimer" class="supprimer" > 
+  
+supprimer </button></a> </td>
 
 </tr>
 <?PHP }

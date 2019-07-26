@@ -11,16 +11,25 @@
 
 </head> 
 <body> 
-
+<?php require 'phpmysqlconnect.php'; ?>
 <div class="container">
 <div class="row"> 
 <div class="col-8"> 
 <form onsubmit="return validate_form()" novalidate id="form1"
- method="post" action="http://localhost/php/src/parts/editerformulaire.php">
+ method="post" 
+ action="http://cv.dream-tek.local/src/parts/editerformulaire.php?id=<?php echo $_GET['id']; ?> " >
  <?php
 include "./2emetest.php";
 ?>
 <h2><div class="e"> experience </div></h2>
+<?php 
+$sql='select count(*) from experience where id_carte ='.$_GET["id"].';';
+$q= $conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours=$q->fetch();
+$nbexperience= intval($parcours["count(*)"]);
+echo $nbexperience;
+?> 
  
 <h2><div class="acc"> accomplishement </div> </h2>
 <label for ="accomplishement1"> nom accomplishement 1</label>
@@ -61,8 +70,6 @@ value="<?php if (isset($_POST)&&(isset($_POST['date_bac']))){echo $_POST['date_b
 <img src="../../web/image/index.jpeg">
 <div class="row"> 
 <div class="col-12"> 
-<label for ="carte_id" > carte identite </label>
-<input type="text" name= "carte_id" pattern ="[0-9]{3}" value="<?php if (isset($_POST)&&(isset($_POST['carte_id']))){echo $_POST['carte_id'];}?>"><br>
 
 <label for="nom"> nom</label>
 
@@ -92,85 +99,145 @@ class="<?php if ((isset($_POST['email']))&&(isset($_POST))&&(!validateEmail('ema
 <h2><div> skills </div> </h2> 
 <div class="col-12"> 
 <?php 
- $nbSkills = 1;
- if (isset($_POST) && isset($_POST["skills"])){
+$sql='select count(*) from competence where (id_carte ='.$_GET["id"].') and (type_competence="skills");';
 
-	 $nbSkills = count($_POST["skills"]);
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$selectionner=$q->fetch();
+$nbskills=intval($selectionner["count(*)"]);
 
- }
- if(isset($_POST) && isset($_POST["ajouter_skills"])){
-	 echo "ici";
-	 $nbSkills++;
- }
-for($i=0; $i<$nbSkills ; $i++){?>
+ $sql ='select nom_competence,type_competence,id from competence where (id_carte ='.$_GET["id"].')
+and (type_competence="skills");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours =$q->fetch();
+
+
+for($i=0; $i<$nbskills; $i++)
+{?>
 <input type ="text"  name="skills[]" 
-value="<?php if(isset($_POST) && isset($_POST["skills"]) && isset($_POST["skills"][$i])) echo $_POST["skills"][$i];?>">  
-<?php }?>
-<input type= "submit" value="ajouter skills" name="ajouter_skills" class="ajout">
-	
-
-<div>logiciel</div> 
+value="<?php echo $parcours['nom_competence'];?>">  
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<div class="invisible"><input type="text" name="t	ype_competence" value="<?php echo $parcours["type_competence"];?>" ></div>
 
 <?php 
-$nblogiciel =1; 
-if (isset($_POST) && isset ($_POST["logiciel"]))
-{$nblogiciel = count($_POST["logiciel"]);}
-if (isset ($_POST) && isset ($_POST ["ajout_logiciel"]))
-{$nblogiciel++;}
+$parcours =$q->fetch();
 
-for ($i=0;$i<$nblogiciel;$i++)
-{?> 
-<input type ="text" name="logiciel[]" value= '<?PHP 
-if (isset($_POST) && isset($_POST["logiciel"]) &&isset ($_POST["logiciel"][$i]))
-{echo $_POST["logiciel"][$i];}?>' > 
-<?PHP 
- }	 
-?>
-<input type="submit" name= "ajout_logiciel" value= "ajouterlogiciel"> <br>
-<div> SGBD </div>
-<?PHP 
-$nbsgbd=1; 
-if (isset ($_POST)&& isset ($_POST["SGBD"]))
-{
-$nbsgbd =count($_POST["SGBD"]); 	
-}
-if (isset ($_POST)&& isset ($_POST["ajout_SGBD"]))
-{$nbsgbd++;
+}?>
 	
-}
-for ($i=0;$i<$nbsgbd;$i++) 
-{?> <input type="text" name= "SGBD[]" 
-value= '<?PHP if (isset($_POST)&& isset ($_POST["SGBD"])&& isset ($_POST["SGBD"][$i]))
-echo $_POST["SGBD"][$i];?> '>
-<?PHP 
 
-}	
-?>
-<input type="submit" value="ajouterSGBD" name="ajout_SGBD">
-<div> langue </div>
+<h2><div>logiciel</div> </h2>
 
-<?PHP 
-$nblangue =1; 
-if (isset ($_POST)&& isset ($_POST["langue"]))
-{
-$nblangue =count($_POST["langue"]); 	
-}
-if (isset ($_POST)&& isset ($_POST["ajout_langue"]))
-{$nblangue++;
-	
-}
-for ($i=0;$i<$nblangue;$i++) 
-{?> <input type="text" name= "langue[]" 
-value= '<?PHP if (isset($_POST)&& isset ($_POST["langue"])&& isset ($_POST["langue"][$i]))
-echo $_POST["langue"][$i];?> '>
-<?PHP 
+<?php 
+$sql='select count(*) from competence where (id_carte ='.$_GET["id"].') and (type_competence="logiciel");';
 
-}	
-?>
-<input type="submit" value="ajouterlangue" name="ajout_langue">
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$selectionner=$q->fetch();
+$nbskills=intval($selectionner["count(*)"]);
+
+$sql ='select nom_competence,id from competence where (id_carte ='.$_GET["id"].')
+and (type_competence="logiciel");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours =$q->fetch();
+
+for($i=0; $i<$nbskills; $i++)
+{?>
+<input type ="text"  name="logiciel[]" 
+value="<?php echo $parcours['nom_competence'];?>">  
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?php  
+$parcours =$q->fetch();
+
+}?>
+
+<h2><div> SGBD </div></h2>
+<?php 
+$sql='select count(*) from competence where (id_carte ='.$_GET["id"].') and (type_competence="SGBD");';
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$selectionner=$q->fetch();
+$nbskills=intval($selectionner["count(*)"]);
+
+ $sql ='select nom_competence,id from competence where (id_carte ='.$_GET["id"].')
+and (type_competence="SGBD");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours =$q->fetch();
+
+for($i=0; $i<$nbskills; $i++)
+{?>
+<input type ="text"  name="SGBD[]" 
+value="<?php echo $parcours['nom_competence'];?>">  
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?php  
+$parcours =$q->fetch();
+
+}?>
+
+<h2><div> langue </div></h2>
+
+<?php 
+$sql='select count(*) from competence where (id_carte ='.$_GET["id"].') and (type_competence="langue");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$selectionner=$q->fetch();
+$nbskills=intval($selectionner["count(*)"]);
+$sql ='select nom_competence,id from competence where (id_carte ='.$_GET["id"].')
+and (type_competence="langue");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours =$q->fetch();
+
+for($i=0; $i<$nbskills; $i++)
+{?>
+
+<input type ="text"  name="langue[]" 
+value="<?php echo $parcours['nom_competence'];?>">  
+
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?php  
+var_dump($parcours);
+
+$parcours =$q->fetch();
+
+}?>
 
 <label for ="projet"> projet 
-<input type ="text" id="projet" name="projet"> <br> 
+<input type ="text" id="projet" name="projet"> <br>
+<?php 
+$sql='select count(*) from competence where (id_carte ='.$_GET["id"].') and (type_competence="projet");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$selectionner=$q->fetch();
+$nbskills=intval($selectionner["count(*)"]);
+$sql ='select nom_competence,type_competence,id from competence where (id_carte ='.$_GET["id"].')
+and (type_competence="projet");';
+
+$q=$conn->query($sql);
+$q->setFetchMode(PDO::FETCH_ASSOC);
+$parcours =$q->fetch();
+var_dump ($parcours); 
+for($i=0; $i<$nbskills; $i++)
+{?>
+<input type ="text"  name="projet" 
+value="<?php echo $parcours['nom_competence'];?>">  
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<div class="invisible"><input type="text" name="type_competence" value="<?php echo $parcours["type_competence"];?>" ></div>
+
+<?php  
+$parcours =$q->fetch();
+
+}?>
+
+ 
 <label for="description"> description</label> 
 <input type="text" id= "description" name="description"> <br>
 <label for=" mot_cles"> mot clés</label> 
@@ -198,10 +265,12 @@ echo "je suis la ";
 if ((validate_form())&&(isset ($_POST["envoyer"])))
 {
 echo "hello";
-$contenuformulaire["carte_id"]=$_POST["carte_id"];
+
+$contenuformulaire["carte_id"]=$_GET["id"];
 $contenuformulaire["nom"]=$_POST["nom"];
 $contenuformulaire["prenom"]=$_POST ["prenom"];
 $contenuformulaire["adresse"]=$_POST["adresse"];
+
 $contenuformulaire["skills"]=$_POST["skills"];
 
 $contenuformulaire["logiciel"]=$_POST["logiciel"];
@@ -237,8 +306,8 @@ $contenuformulaire["projet"]["nom"]=$_POST["projet"];
 $contenuformulaire ["projet"]["description"]=$_POST["description"];
 $contenuformulaire ["projet"]["mot_cle"]=$_POST["mot_cle"];
 
-require 'phpmysqlconnect.php';
-
+$contenuformulaire["idcompetence"] =$_POST["skillsid"];
+var_dump ($contenuformulaire);
 $sql ='select * from identite where id_carte='. $contenuformulaire["carte_id"].'';
 echo $sql; 
 $id_carte_bd=$conn->query($sql);
@@ -266,7 +335,8 @@ VALUES
 
 
 $q=$conn->exec($sql);
-echo "donnée inserée";}
+
+echo "donnée modifier";}
 else 
 {$sql ='update identite set nom = "'.$contenuformulaire["nom"].'", 
 prenom="'.$contenuformulaire["prenom"].'",
@@ -278,68 +348,76 @@ $q=$conn->exec($sql);
 echo "donnée mise à jour ";
 	
 }
-
+$i=0;
 foreach ($contenuformulaire["skills"] as $skills_element)
-{
-	$sql ='update competence set nom_competence="'.$skills_element.'", 
-type_competence="skills" where (id_carte ='.$contenuformulaire["carte_id"].')
-and (type_competence="skills");';
-echo $sql; 
-$q=$conn->exec($sql);
-}
-foreach ($contenuformulaire["logiciel"] as $logiciel_element)
-{$sql ='update competence set nom_competence="'.$logiciel_element.'"  
-where id_carte='.$contenuformulaire["carte_id"].' and type_competence="logiciel";';
+{?>
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?PHP
+	$sql ='update competence set 
+nom_competence="'.$skills_element.'"
+where type_competence="skills" and id='.$contenuformulaire["idcompetence"][$i].';';
+
 echo $sql;
 $q=$conn->exec($sql);
+$i++;
+}
 
+
+foreach ($contenuformulaire["logiciel"] as $logiciel_element)
+{$sql ='update competence set nom_competence="'.$logiciel_element.'"  
+where type_competence="logiciel" and id='.$contenuformulaire["idcompetence"][$i].';';
+echo $sql;
+$q=$conn->exec($sql);
+$i++;
+?><div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?PHP
 }
 foreach ($contenuformulaire["langue"] as $langue_element)
 {$sql ='update competence set nom_competence = "'.$langue_element.'" 
-where id_carte='.$contenuformulaire["carte_id"].' and type_competence="langue";';
+where type_competence="langue" and id='.$contenuformulaire["idcompetence"][$i].';';
 $q=$conn->exec($sql);
 echo $sql; 
-echo "donnée inserée";
+echo "donnée mise à jour";
+$i++;
+?>
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>
+<?PHP 
 }
 
 foreach ($contenuformulaire["SGBD"] as $SGBD_element)
 {$sql ='update competence set nom_competence="'.$SGBD_element.'" 
-where id_carte='.$contenuformulaire["carte_id"].' and (type_competence="SGBD")
-;';
+where type_competence="SGBD" and id='.$contenuformulaire["idcompetence"][$i].';';
+$i++;
 echo $sql; 
 $q=$conn->exec($sql);
+?> 
+<div class="invisible"><input type="text" name="skillsid[]" value="<?php echo $parcours["id"];?>" ></div>,
+<?PHP 
 }
-foreach ($contenuformulaire["langue"] as $langue_element)
-{$sql ='update competence set nom_competence="'.$langue_element.'"
- where (id_carte='.$contenuformulaire["carte_id"].') and type_competence="langue"
-;';
-$q=$conn->exec($sql);
-echo $sql; 
 
-echo "donnée inserée";
 
-}
 $data = [
     'nom_competence' => $contenuformulaire["projet"]["nom"],
     'keywords' => $contenuformulaire["projet"]["mot_cle"],
     'description' => $contenuformulaire["projet"]["description"],
 
-    'id_carte' => $contenuformulaire["carte_id"],
 
+'id' =>intval($contenuformulaire["idcompetence"][$i])
 ];
+
 var_dump ($data);
 $sql = "UPDATE competence SET 
 nom_competence=:nom_competence, 
 keywords=:keywords, 
 description=:description
-WHERE (id_carte=:id_carte) and 
-(type_competence='projet')";	
+WHERE id=:id;";	
 $stmt= $conn->prepare($sql);
-$stmt->execute($data);
 echo $sql; 
 
+$stmt->execute($data);
 
-echo "donnée mise à jour";
+
+echo "donnee mise à jour";
 
 foreach ($contenuformulaire["accomplishement"] as $accomplishement_element)
 foreach ($accomplishement_element as $element)
@@ -360,8 +438,8 @@ echo "donnée inserée";
 break;
 }
 
-}
-}
+}}
+
 ?>
 
 
